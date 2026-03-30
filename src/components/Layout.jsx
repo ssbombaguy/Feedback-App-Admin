@@ -9,14 +9,11 @@ const navItems = [
 export default function Layout({ children }) {
   const navigate = useNavigate()
   const location = useLocation()
-
-  const user = (() => {
-    try { return JSON.parse(localStorage.getItem('user') || '{}') } catch { return {} }
-  })()
+  const adminEmail = localStorage.getItem('adminEmail') || 'Admin'
 
   const handleLogout = () => {
     localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    localStorage.removeItem('adminEmail')
     navigate('/admin/login')
   }
 
@@ -27,9 +24,7 @@ export default function Layout({ children }) {
           <span className={styles.logoMark}>◈</span>
           <span className={styles.logoText}>ADMIN</span>
         </div>
-
         <div className={styles.sidebarDivider} />
-
         <nav className={styles.nav}>
           {navItems.map(item => (
             <button
@@ -42,22 +37,16 @@ export default function Layout({ children }) {
             </button>
           ))}
         </nav>
-
         <div className={styles.sidebarBottom}>
           <div className={styles.userInfo}>
             <div className={styles.userDot} />
-            <span className={styles.userName}>{user.name || user.email || 'Admin'}</span>
+            <span className={styles.userName}>{adminEmail}</span>
           </div>
-          <button className={styles.logoutBtn} onClick={handleLogout}>
-            ← LOGOUT
-          </button>
+          <button className={styles.logoutBtn} onClick={handleLogout}>← LOGOUT</button>
         </div>
       </aside>
-
       <main className={styles.main}>
-        <div className={styles.content}>
-          {children}
-        </div>
+        <div className={styles.content}>{children}</div>
       </main>
     </div>
   )

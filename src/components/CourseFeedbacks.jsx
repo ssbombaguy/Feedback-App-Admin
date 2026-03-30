@@ -20,8 +20,10 @@ function FeedbackModal({ feedback, onClose }) {
           <div>
             <div className={styles.modalTitle}>FEEDBACK DETAILS</div>
             <div className={styles.modalSub}>
-              {feedback.userId?.name} {feedback.userId?.lastname}
-              {feedback.userId?.email && <span className={styles.modalEmail}> · {feedback.userId.email}</span>}
+              {feedback.isAnonymous
+                ? <span className={styles.anonTag}>ANONYMOUS</span>
+                : <span className={styles.modalEmail}>{feedback.userId}</span>
+              }
             </div>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>×</button>
@@ -92,9 +94,7 @@ export default function CourseFeedbacks() {
       <div className={`${styles.pageHeader} fade-up`}>
         <div>
           <div className={styles.breadcrumb}>
-            <button className={styles.backBtn} onClick={() => navigate('/admin/courses')}>
-              ← COURSES
-            </button>
+            <button className={styles.backBtn} onClick={() => navigate('/admin/courses')}>← COURSES</button>
             <span className={styles.sep}>/</span>
             FEEDBACKS
           </div>
@@ -116,12 +116,16 @@ export default function CourseFeedbacks() {
             </div>
           </div>
           <div className={styles.statBox}>
+            <div className={styles.statLabel}>ANONYMOUS SUBMISSIONS</div>
+            <div className={styles.statNum}>
+              {stats.anonymousCount}
+              <span className={styles.statPct}> ({stats.anonymousPercentage}%)</span>
+            </div>
+          </div>
+          <div className={styles.statBox}>
             <div className={styles.statLabel}>SATISFACTION RATE</div>
             <div className={styles.progressTrack}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${stats.returnAsTeacherPercentage}%` }}
-              />
+              <div className={styles.progressFill} style={{ width: `${stats.returnAsTeacherPercentage}%` }} />
             </div>
             <div className={styles.statPct}>{stats.returnAsTeacherPercentage}%</div>
           </div>
@@ -135,9 +139,7 @@ export default function CourseFeedbacks() {
         </div>
       )}
 
-      {error && (
-        <div className={styles.errorState}><span>!</span> {error}</div>
-      )}
+      {error && <div className={styles.errorState}><span>!</span> {error}</div>}
 
       {!loading && !error && (
         <div className={`${styles.tableWrap} fade-up fade-up-delay-2`}>
@@ -145,10 +147,10 @@ export default function CourseFeedbacks() {
             <thead>
               <tr>
                 <th className={styles.th}><span className={styles.thLabel}>#</span></th>
-                <th className={styles.th}><span className={styles.thLabel}>STUDENT</span></th>
-                <th className={styles.th}><span className={styles.thLabel}>EMAIL</span></th>
+                <th className={styles.th}><span className={styles.thLabel}>STUDENT ID</span></th>
                 <th className={styles.th}><span className={styles.thLabel}>EVALUATION PREVIEW</span></th>
                 <th className={styles.th}><span className={styles.thLabel}>RETURN AS TEACHER</span></th>
+                <th className={styles.th}><span className={styles.thLabel}>ANONYMOUS</span></th>
                 <th className={styles.th}><span className={styles.thLabel}>ACTION</span></th>
               </tr>
             </thead>
@@ -164,12 +166,9 @@ export default function CourseFeedbacks() {
                       <span className={styles.rowNum}>{String(i + 1).padStart(2, '0')}</span>
                     </td>
                     <td className={styles.td}>
-                      <span className={styles.studentName}>
-                        {fb.userId?.name} {fb.userId?.lastname}
+                      <span className={styles.email}>
+                        {fb.isAnonymous ? '—' : fb.userId}
                       </span>
-                    </td>
-                    <td className={styles.td}>
-                      <span className={styles.email}>{fb.userId?.email}</span>
                     </td>
                     <td className={styles.td}>
                       <span className={styles.preview}>
@@ -183,10 +182,12 @@ export default function CourseFeedbacks() {
                       </span>
                     </td>
                     <td className={styles.td}>
-                      <button
-                        className={styles.actionBtn}
-                        onClick={() => setSelected(fb)}
-                      >
+                      <span className={fb.isAnonymous ? styles.yesTag : styles.noTag}>
+                        {fb.isAnonymous ? '✓ YES' : '✗ NO'}
+                      </span>
+                    </td>
+                    <td className={styles.td}>
+                      <button className={styles.actionBtn} onClick={() => setSelected(fb)}>
                         DETAILS →
                       </button>
                     </td>

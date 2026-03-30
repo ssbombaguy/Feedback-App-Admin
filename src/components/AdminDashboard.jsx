@@ -15,12 +15,13 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const token = localStorage.getItem('token')
+  const adminEmail = localStorage.getItem('adminEmail')
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const response = await axios.get(
-          'http:192.168.100.2:3000/api/admin/dashboard',
+          'http://localhost:3000/api/admin/dashboard',
           { headers: { Authorization: `Bearer ${token}` } }
         )
         setDashboard(response.data.dashboard)
@@ -63,7 +64,7 @@ export default function AdminDashboard() {
         <>
           <div className={styles.welcomeBanner}>
             <span className={styles.welcomeLabel}>LOGGED IN AS</span>
-            <span className={styles.welcomeName}>{dashboard.adminName}</span>
+            <span className={styles.welcomeName}>{adminEmail}</span>
             <div className={styles.statusPill}>
               <div className={styles.statusDot} />
               ACTIVE SESSION
@@ -72,12 +73,22 @@ export default function AdminDashboard() {
 
           <div className={styles.statsGrid}>
             <StatCard label="TOTAL COURSES" value={dashboard.totalCourses} color="var(--accent)" delay="1" />
-            <StatCard label="TOTAL USERS" value={dashboard.totalUsers} color="#47b8ff" delay="2" />
-            <StatCard label="FEEDBACKS" value={dashboard.totalFeedbacks} color="var(--accent2)" delay="3" />
-            <StatCard label="ADMINS" value={dashboard.totalAdmins} color="var(--green)" delay="4" />
+            <StatCard label="TOTAL FEEDBACKS" value={dashboard.totalFeedbacks} color="var(--accent2)" delay="2" />
           </div>
 
           <div className={`${styles.infoRow} fade-up`}>
+            <div className={styles.infoCard}>
+              <div className={styles.infoCardTitle}>COURSES WITH FEEDBACK</div>
+              <div className={styles.infoList}>
+                {dashboard.courses?.map((course, i) => (
+                  <div key={i} className={styles.infoItem}>
+                    <span className={styles.infoKey}>{course.courseName}</span>
+                    <span className={styles.infoVal}>{course.totalFeedbacks} feedbacks</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className={styles.infoCard}>
               <div className={styles.infoCardTitle}>SYSTEM STATUS</div>
               <div className={styles.infoList}>

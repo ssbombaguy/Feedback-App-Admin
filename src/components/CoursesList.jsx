@@ -29,8 +29,7 @@ export default function CoursesList() {
   }, [token])
 
   const filtered = courses.filter(c =>
-    c.name?.toLowerCase().includes(filter.toLowerCase()) ||
-    c.learningType?.toLowerCase().includes(filter.toLowerCase())
+    c.courseName?.toLowerCase().includes(filter.toLowerCase())
   )
 
   return (
@@ -54,9 +53,7 @@ export default function CoursesList() {
           onChange={e => setFilter(e.target.value)}
         />
         {filter && (
-          <button className={styles.clearBtn} onClick={() => setFilter('')}>
-            × CLEAR
-          </button>
+          <button className={styles.clearBtn} onClick={() => setFilter('')}>× CLEAR</button>
         )}
       </div>
 
@@ -68,9 +65,7 @@ export default function CoursesList() {
       )}
 
       {error && (
-        <div className={styles.errorState}>
-          <span>!</span> {error}
-        </div>
+        <div className={styles.errorState}><span>!</span> {error}</div>
       )}
 
       {!loading && !error && (
@@ -78,61 +73,33 @@ export default function CoursesList() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>#</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>COURSE NAME</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>DURATION</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>TEACHERS</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>TYPE</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>ACTION</span>
-                </th>
+                <th className={styles.th}><span className={styles.thLabel}>#</span></th>
+                <th className={styles.th}><span className={styles.thLabel}>COURSE NAME</span></th>
+                <th className={styles.th}><span className={styles.thLabel}>TOTAL FEEDBACKS</span></th>
+                <th className={styles.th}><span className={styles.thLabel}>ACTION</span></th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className={styles.emptyRow}>
-                    NO COURSES FOUND
-                  </td>
+                  <td colSpan="4" className={styles.emptyRow}>NO COURSES FOUND</td>
                 </tr>
               ) : (
                 filtered.map((course, i) => (
-                  <tr key={course._id} className={styles.tr}>
+                  <tr key={i} className={styles.tr}>
                     <td className={styles.td}>
                       <span className={styles.rowNum}>{String(i + 1).padStart(2, '0')}</span>
                     </td>
                     <td className={styles.td}>
-                      <span className={styles.courseName}>{course.name}</span>
+                      <span className={styles.courseName}>{course.courseName}</span>
                     </td>
                     <td className={styles.td}>
-                      <span className={styles.pill}>{course.duration}</span>
-                    </td>
-                    <td className={styles.td}>
-                      <span className={styles.teachers}>
-                        {Array.isArray(course.teachersName)
-                          ? course.teachersName.join(', ')
-                          : course.teachersName}
-                      </span>
-                    </td>
-                    <td className={styles.td}>
-                      <span className={`${styles.typePill} ${course.learningType === 'online' ? styles.online : styles.offline}`}>
-                        {course.learningType?.toUpperCase()}
-                      </span>
+                      <span className={styles.pill}>{course.totalFeedbacks}</span>
                     </td>
                     <td className={styles.td}>
                       <button
                         className={styles.actionBtn}
-                        onClick={() => navigate(`/admin/courses/${encodeURIComponent(course.name)}/feedbacks`)}
+                        onClick={() => navigate(`/admin/courses/${encodeURIComponent(course.courseName)}/feedbacks`)}
                       >
                         VIEW FEEDBACKS →
                       </button>

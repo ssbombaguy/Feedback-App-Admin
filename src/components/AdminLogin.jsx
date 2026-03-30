@@ -17,20 +17,12 @@ export default function AdminLogin() {
 
     try {
       const response = await axios.post(
-        'http://localhost:3000/api/auth/login',
+        'http://localhost:3000/api/admin/login',
         { email, password }
       )
-      console.log('Full response:', response.data)
-      const { user, token } = response.data
-
-      if (!user.isAdmin) {
-        setError('This account does not have admin privileges')
-        setLoading(false)
-        return
-      }
-
+      const { token } = response.data
       localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('adminEmail', email)
       navigate('/admin/dashboard')
     } catch (err) {
       setError(err.response?.data?.error || 'Authentication failed')
@@ -42,7 +34,6 @@ export default function AdminLogin() {
   return (
     <div className={styles.page}>
       <div className={styles.grid} aria-hidden="true" />
-
       <div className={styles.card}>
         <div className={styles.header}>
           <div className={styles.logoMark}>◈</div>
@@ -51,9 +42,7 @@ export default function AdminLogin() {
             <p className={styles.subtitle}>Restricted system — authorized personnel only</p>
           </div>
         </div>
-
         <div className={styles.divider} />
-
         <form onSubmit={handleLogin} className={styles.form}>
           <div className={styles.field}>
             <label className={styles.label}>EMAIL ADDRESS</label>
@@ -67,7 +56,6 @@ export default function AdminLogin() {
               autoFocus
             />
           </div>
-
           <div className={styles.field}>
             <label className={styles.label}>PASSWORD</label>
             <input
@@ -79,23 +67,19 @@ export default function AdminLogin() {
               required
             />
           </div>
-
           {error && (
             <div className={styles.error}>
               <span className={styles.errorIcon}>!</span>
               {error}
             </div>
           )}
-
           <button type="submit" className={styles.btn} disabled={loading}>
-            {loading ? (
-              <span className={styles.loadingText}>AUTHENTICATING<span className={styles.dots}>...</span></span>
-            ) : (
-              'AUTHENTICATE →'
-            )}
+            {loading
+              ? <span className={styles.loadingText}>AUTHENTICATING<span className={styles.dots}>...</span></span>
+              : 'AUTHENTICATE →'
+            }
           </button>
         </form>
-
         <div className={styles.footer}>
           <span className={styles.footerDot} />
           <span>SECURE CONNECTION</span>
