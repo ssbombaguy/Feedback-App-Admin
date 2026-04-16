@@ -1,38 +1,21 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
-import styles from './AdminDashboard.module.css'
+import styles from "./AdminDashboard.module.css";
+import { useAdminCourses, useFeedbacks } from "../hooks/useFeedbacks";
 
 const StatCard = ({ label, value, color, delay }) => (
-  <div className={`${styles.statCard} fade-up fade-up-delay-${delay}`} style={{ '--accent-color': color }}>
+  <div
+    className={`${styles.statCard} fade-up fade-up-delay-${delay}`}
+    style={{ "--accent-color": color }}
+  >
     <div className={styles.statLabel}>{label}</div>
-    <div className={styles.statValue}>{value ?? '—'}</div>
+    <div className={styles.statValue}>{value ?? "—"}</div>
     <div className={styles.statBar} />
   </div>
-)
+);
 
 export default function AdminDashboard() {
-  const [dashboard, setDashboard] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const token = localStorage.getItem('token')
-  const adminEmail = localStorage.getItem('adminEmail')
-
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const response = await axios.get(
-          'http://localhost:3000/api/admin/dashboard',
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        setDashboard(response.data.dashboard)
-      } catch (err) {
-        setError('Failed to load dashboard data')
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchDashboard()
-  }, [token])
+  const { courses, isLoading, isError, error } = useAdminCourses();
+  const { data: feedbacks } = useFeedbacks();
+  const adminEmail = localStorage.getItem("adminEmail");
 
   return (
     <div>
@@ -42,25 +25,30 @@ export default function AdminDashboard() {
           <h1 className={styles.pageTitle}>OVERVIEW</h1>
         </div>
         <div className={styles.timestamp}>
-          {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
         </div>
       </div>
 
-      {loading && (
+      {isLoading && (
         <div className={styles.loadingState}>
           <div className={styles.loadingBar} />
           <span>LOADING DATA...</span>
         </div>
       )}
 
-      {error && (
+      {isError && (
         <div className={styles.errorState}>
           <span className={styles.errorIcon}>!</span>
-          {error}
+          {error?.message || "Failed to load dashboard data"}
         </div>
       )}
 
-      {dashboard && (
+      {!isLoading && !isError && (
         <>
           <div className={styles.welcomeBanner}>
             <span className={styles.welcomeLabel}>LOGGED IN AS</span>
@@ -72,18 +60,30 @@ export default function AdminDashboard() {
           </div>
 
           <div className={styles.statsGrid}>
-            <StatCard label="TOTAL COURSES" value={dashboard.totalCourses} color="var(--accent)" delay="1" />
-            <StatCard label="TOTAL FEEDBACKS" value={dashboard.totalFeedbacks} color="var(--accent2)" delay="2" />
+            <StatCard
+              label="TOTAL COURSES"
+              value={courses.length}
+              color="var(--accent)"
+              delay="1"
+            />
+            <StatCard
+              label="TOTAL FEEDBACKS"
+              value={feedbacks?.length}
+              color="var(--accent2)"
+              delay="2"
+            />
           </div>
 
           <div className={`${styles.infoRow} fade-up`}>
             <div className={styles.infoCard}>
               <div className={styles.infoCardTitle}>COURSES WITH FEEDBACK</div>
               <div className={styles.infoList}>
-                {dashboard.courses?.map((course, i) => (
+                {courses.map((course, i) => (
                   <div key={i} className={styles.infoItem}>
                     <span className={styles.infoKey}>{course.courseName}</span>
-                    <span className={styles.infoVal}>{course.totalFeedbacks} feedbacks</span>
+                    <span className={styles.infoVal}>
+                      {course.totalFeedbacks} feedbacks
+                    </span>
                   </div>
                 ))}
               </div>
@@ -94,11 +94,15 @@ export default function AdminDashboard() {
               <div className={styles.infoList}>
                 <div className={styles.infoItem}>
                   <span className={styles.infoKey}>API</span>
-                  <span className={`${styles.infoVal} ${styles.green}`}>CONNECTED</span>
+                  <span className={`${styles.infoVal} ${styles.green}`}>
+                    CONNECTED
+                  </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoKey}>AUTH</span>
-                  <span className={`${styles.infoVal} ${styles.green}`}>JWT ACTIVE</span>
+                  <span className={`${styles.infoVal} ${styles.green}`}>
+                    JWT ACTIVE
+                  </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoKey}>ROLE</span>
@@ -110,5 +114,5 @@ export default function AdminDashboard() {
         </>
       )}
     </div>
-  )
+  );
 }
