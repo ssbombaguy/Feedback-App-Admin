@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://test.registration-mziuri.ge/api/v1" ;
+const BASE_URL = "https://test.registration-mziuri.ge/api/v1";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -15,12 +15,13 @@ api.interceptors.request.use((config) => {
 });
 
 export const adminAPI = {
-
   login: (email, password) => api.post("/admin/login", { email, password }),
-  
+
   getFeedbacks: () => api.get("/feedbacks").then(res => res.data.data || res.data),
   
   deleteFeedback: (id) => api.delete(`/feedbacks/${id}`),
   
   getUser: () => api.get("/user").then(res => res.data),
+
+  sendNotification: (notificationData) => api.post('/notifications/send', notificationData),
 };

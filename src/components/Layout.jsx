@@ -4,6 +4,7 @@ import styles from './Layout.module.css'
 const navItems = [
   { path: '/admin/dashboard', label: 'Dashboard', icon: '⬛' },
   { path: '/admin/courses', label: 'Courses', icon: '◧' },
+  { path: '/admin/notifications', label: 'Notifications', icon: '◈' },
 ]
 
 export default function Layout({ children }) {
