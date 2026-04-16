@@ -1,73 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import styles from "./CoursesList.module.css";
-import { getFeedbacks } from "../api/api";
+import { useAdminCourses } from "../hooks/useFeedbacks";
 
 export default function CoursesList() {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { courses, isLoading, isError } = useAdminCourses();
   const [filter, setFilter] = useState("");
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        const response = await getFeedbacks();
-
-        const feedbacks = response.data.data || response.data;
-
-        const coursesMap = {};
-
-        feedbacks.forEach((fb) => {
-          if (!coursesMap[fb.courseName]) {
-            coursesMap[fb.courseName] = 0;
-          }
-          coursesMap[fb.courseName]++;
-        });
-
-        const courses = Object.keys(coursesMap).map((name) => ({
-          courseName: name,
-          totalFeedbacks: coursesMap[name],
-        }));
-
-        setCourses(courses);
-      } catch (err) {
-        setError("Failed to load courses");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCourses();
-  }, []);
 
   const filtered = courses.filter((c) =>
     c.courseName?.toLowerCase().includes(filter.toLowerCase())
   );
 
+  if (isLoading) return <div className={styles.loadingState}>LOADING...</div>;
+
   return (
     <div>
-      <div className={`${styles.pageHeader} fade-up`}>
-        <div>
-          <div className={styles.breadcrumb}>◈ / COURSES</div>
-          <h1 className={styles.pageTitle}>COURSES</h1>
-        </div>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>COURSES</h1>
         <div className={styles.count}>
-          {!loading && (
-            <span>
-              <strong>{filtered.length}</strong> / {courses.length} TOTAL
-            </span>
-          )}
+          <strong>{filtered.length}</strong> / {courses.length} TOTAL
         </div>
       </div>
 
-      <div className={`${styles.filterRow} fade-up fade-up-delay-1`}>
+      <div className={styles.filterRow}>
         <input
           type="text"
           className={styles.filterInput}
@@ -75,91 +31,45 @@ export default function CoursesList() {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
-        {filter && (
-          <button className={styles.clearBtn} onClick={() => setFilter("")}>
-            × CLEAR
-          </button>
-        )}
       </div>
 
-      {loading && (
-        <div className={styles.loadingState}>
-          <div className={styles.loadingBar} />
-          <span>LOADING COURSES...</span>
-        </div>
-      )}
-
-      {error && (
-        <div className={styles.errorState}>
-          <span>!</span> {error}
-        </div>
-      )}
-
-      {!loading && !error && (
-        <div className={`${styles.tableWrap} fade-up fade-up-delay-2`}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>#</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>COURSE NAME</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>TOTAL FEEDBACKS</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>ACTION</span>
-                </th>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>COURSE NAME</th>
+              <th>TOTAL FEEDBACKS</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((course, i) => (
+              <tr key={i} className={styles.tr}>
+                <td>{String(i + 1).padStart(2, "0")}</td>
+                <td>{course.courseName}</td>
+                <td>
+                  <span className={styles.pill}>{course.totalFeedbacks}</span>
+                </td>
+                <td>
+                  <button
+                    className={styles.actionBtn}
+                    onClick={() =>
+                      navigate(
+                        `/admin/courses/${encodeURIComponent(
+                          course.courseName
+                        )}/feedbacks`
+                      )
+                    }
+                  >
+                    VIEW FEEDBACKS →
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className={styles.emptyRow}>
-                    NO COURSES FOUND
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((course, i) => (
-                  <tr key={i} className={styles.tr}>
-                    <td className={styles.td}>
-                      <span className={styles.rowNum}>
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                    </td>
-                    <td className={styles.td}>
-                      <span className={styles.courseName}>
-                        {course.courseName}
-                      </span>
-                    </td>
-                    <td className={styles.td}>
-                      <span className={styles.pill}>
-                        {course.totalFeedbacks}
-                      </span>
-                    </td>
-                    <td className={styles.td}>
-                      <button
-                        className={styles.actionBtn}
-                        onClick={() =>
-                          navigate(
-                            `/admin/courses/${encodeURIComponent(
-                              course.courseName
-                            )}/feedbacks`
-                          )
-                        }
-                      >
-                        VIEW FEEDBACKS →
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

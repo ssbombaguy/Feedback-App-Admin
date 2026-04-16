@@ -1,18 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import styles from "./CourseFeedbacks.module.css";
-import { getFeedbacks } from "../api/api";
+import { useFeedbacks } from "../hooks/useFeedbacks";
 
 function FeedbackModal({ feedback, onClose }) {
   if (!feedback) return null;
-  const fields = [
-    { key: "courseEvaluation", label: "COURSE EVALUATION" },
-    { key: "teacherEvaluation", label: "TEACHER EVALUATION" },
-    { key: "practicalUse", label: "PRACTICAL USE" },
-    { key: "studentRequests", label: "STUDENT REQUESTS" },
-    { key: "idealSchool", label: "IDEAL SCHOOL" },
-  ];
+ const fields = [
+   { key: "course_evaluation_form", label: "COURSE EVALUATION" },
+   { key: "teacher_evaluation_form", label: "TEACHER EVALUATION" },
+   { key: "career_impact", label: "PRACTICAL USE" },
+   { key: "subject_wishes", label: "STUDENT REQUESTS" },
+   { key: "ideal_learning_environment", label: "IDEAL SCHOOL" },
+ ];
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -21,10 +20,10 @@ function FeedbackModal({ feedback, onClose }) {
           <div>
             <div className={styles.modalTitle}>FEEDBACK DETAILS</div>
             <div className={styles.modalSub}>
-              {feedback.isAnonymous ? (
+              {feedback.is_anonymous ? (
                 <span className={styles.anonTag}>ANONYMOUS</span>
               ) : (
-                <span className={styles.modalEmail}>{feedback.userId}</span>
+                <span className={styles.modalEmail}>{feedback.pupil_name}</span>
               )}
             </div>
           </div>
@@ -35,8 +34,12 @@ function FeedbackModal({ feedback, onClose }) {
 
         <div className={styles.modalBody}>
           <div className={styles.returnBadge}>
-            <span className={feedback.returnAsTeacher ? styles.yes : styles.no}>
-              {feedback.returnAsTeacher
+            <span
+              className={
+                feedback.wants_to_return_as_teacher ? styles.yes : styles.no
+              }
+            >
+              {feedback.wants_to_return_as_teacher
                 ? "✓ Would return as teacher"
                 : "✗ Would not return as teacher"}
             </span>
@@ -52,7 +55,7 @@ function FeedbackModal({ feedback, onClose }) {
           )}
 
           <div className={styles.submittedAt}>
-            SUBMITTED · {new Date(feedback.submittedAt).toLocaleString()}
+            SUBMITTED · {new Date(feedback.createdAt).toLocaleString()}
           </div>
         </div>
       </div>
@@ -63,57 +66,28 @@ function FeedbackModal({ feedback, onClose }) {
 export default function CourseFeedbacks() {
   const { courseName } = useParams();
   const navigate = useNavigate();
-  const [feedbacks, setFeedbacks] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
-  const token = localStorage.getItem("token");
   const decoded = decodeURIComponent(courseName);
 
-  useEffect(() => {
-    const fetchFeedbacks = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  const { data: allFeedbacks, isLoading, isError } = useFeedbacks();
 
-        const response = await getFeedbacks();
+  const feedbacks =
+    allFeedbacks?.filter((fb) => fb.course_name === decoded) || [];
 
-        const allFeedbacks = response.data.data || response.data;
-
-        const filtered = allFeedbacks.filter((fb) => fb.courseName === decoded);
-
-        setFeedbacks(filtered);
-
-        setStats({
-          totalFeedbacks: filtered.length,
-          returnAsTeacherCount: filtered.filter((f) => f.returnAsTeacher)
-            .length,
-          anonymousCount: filtered.filter((f) => f.isAnonymous).length,
-          returnAsTeacherPercentage: filtered.length
-            ? Math.round(
-                (filtered.filter((f) => f.returnAsTeacher).length /
-                  filtered.length) *
-                  100
-              )
-            : 0,
-          anonymousPercentage: filtered.length
-            ? Math.round(
-                (filtered.filter((f) => f.isAnonymous).length /
-                  filtered.length) *
-                  100
-              )
-            : 0,
-        });
-      } catch (err) {
-        setError("Failed to load feedbacks");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFeedbacks();
-  }, [courseName]);
+const stats = {
+  totalFeedbacks: feedbacks.length,
+  returnAsTeacherCount: feedbacks.filter((f) => f.wants_to_return_as_teacher)
+    .length,
+  anonymousCount: feedbacks.filter((f) => f.is_anonymous).length,
+  returnAsTeacherPercentage: feedbacks.length
+    ? Math.round(
+        (feedbacks.filter((f) => f.wants_to_return_as_teacher).length /
+          feedbacks.length) *
+          100
+      )
+    : 0,
+};
+  // ---------------------
 
   return (
     <div>
@@ -133,7 +107,7 @@ export default function CourseFeedbacks() {
         </div>
       </div>
 
-      {stats && (
+      {!isLoading && !isError && (
         <div className={`${styles.statsRow} fade-up fade-up-delay-1`}>
           <div className={styles.statBox}>
             <div className={styles.statLabel}>TOTAL FEEDBACKS</div>
@@ -174,20 +148,20 @@ export default function CourseFeedbacks() {
         </div>
       )}
 
-      {loading && (
+      {isLoading && (
         <div className={styles.loadingState}>
           <div className={styles.loadingBar} />
           <span>LOADING FEEDBACKS...</span>
         </div>
       )}
 
-      {error && (
+      {isError && (
         <div className={styles.errorState}>
-          <span>!</span> {error}
+          <span>!</span> Failed to load feedbacks
         </div>
       )}
 
-      {!loading && !error && (
+      {!isLoading && !isError && (
         <div className={`${styles.tableWrap} fade-up fade-up-delay-2`}>
           <table className={styles.table}>
             <thead>
@@ -229,31 +203,31 @@ export default function CourseFeedbacks() {
                     </td>
                     <td className={styles.td}>
                       <span className={styles.email}>
-                        {fb.isAnonymous ? "—" : fb.userId}
+                        {fb.is_anonymous ? "—" : fb.pupil_name}
                       </span>
                     </td>
                     <td className={styles.td}>
                       <span className={styles.preview}>
-                        {fb.courseEvaluation?.substring(0, 40)}
-                        {fb.courseEvaluation?.length > 40 ? "..." : ""}
+                        {fb.course_evaluation_form?.substring(0, 40)}
+                        {fb.course_evaluation_form?.length > 40 ? "..." : ""}
                       </span>
                     </td>
                     <td className={styles.td}>
                       <span
                         className={
-                          fb.returnAsTeacher ? styles.yesTag : styles.noTag
+                          fb.wants_to_return_as_teacher ? styles.yesTag : styles.noTag
                         }
                       >
-                        {fb.returnAsTeacher ? "✓ YES" : "✗ NO"}
+                        {fb.wants_to_return_as_teacher ? "✓ YES" : "✗ NO"}
                       </span>
                     </td>
                     <td className={styles.td}>
                       <span
                         className={
-                          fb.isAnonymous ? styles.yesTag : styles.noTag
+                          fb.is_anonymous ? styles.yesTag : styles.noTag
                         }
                       >
-                        {fb.isAnonymous ? "✓ YES" : "✗ NO"}
+                        {fb.is_anonymous ? "✓ YES" : "✗ NO"}
                       </span>
                     </td>
                     <td className={styles.td}>

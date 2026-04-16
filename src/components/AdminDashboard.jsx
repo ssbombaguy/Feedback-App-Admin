@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import styles from "./AdminDashboard.module.css";
-import { getFeedbacks } from "../api/api";
+import { useAdminCourses, useFeedbacks } from "../hooks/useFeedbacks";
 
 const StatCard = ({ label, value, color, delay }) => (
   <div
@@ -15,51 +13,9 @@ const StatCard = ({ label, value, color, delay }) => (
 );
 
 export default function AdminDashboard() {
-  const [dashboard, setDashboard] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const token = localStorage.getItem("token");
+  const { courses, isLoading, isError, error } = useAdminCourses();
+  const { data: feedbacks } = useFeedbacks();
   const adminEmail = localStorage.getItem("adminEmail");
-
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        const response = await getFeedbacks();
-        const feedbacks = response.data.data || response.data;
-
-        const totalFeedbacks = feedbacks.length;
-
-        const totalCourses = new Set(feedbacks.map((f) => f.courseName)).size;
-
-        const coursesMap = {};
-        feedbacks.forEach((fb) => {
-          if (!coursesMap[fb.courseName]) {
-            coursesMap[fb.courseName] = 0;
-          }
-          coursesMap[fb.courseName]++;
-        });
-
-        const courses = Object.keys(coursesMap).map((name) => ({
-          courseName: name,
-          totalFeedbacks: coursesMap[name],
-        }));
-        setDashboard({
-          totalFeedbacks,
-          totalCourses,
-          courses,
-        });
-      } catch (err) {
-        setError("Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboard();
-  }, []);
 
   return (
     <div>
@@ -78,21 +34,21 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {loading && (
+      {isLoading && (
         <div className={styles.loadingState}>
           <div className={styles.loadingBar} />
           <span>LOADING DATA...</span>
         </div>
       )}
 
-      {error && (
+      {isError && (
         <div className={styles.errorState}>
           <span className={styles.errorIcon}>!</span>
-          {error}
+          {error?.message || "Failed to load dashboard data"}
         </div>
       )}
 
-      {dashboard && (
+      {!isLoading && !isError && (
         <>
           <div className={styles.welcomeBanner}>
             <span className={styles.welcomeLabel}>LOGGED IN AS</span>
@@ -106,13 +62,13 @@ export default function AdminDashboard() {
           <div className={styles.statsGrid}>
             <StatCard
               label="TOTAL COURSES"
-              value={dashboard.totalCourses}
+              value={courses.length}
               color="var(--accent)"
               delay="1"
             />
             <StatCard
               label="TOTAL FEEDBACKS"
-              value={dashboard.totalFeedbacks}
+              value={feedbacks?.length}
               color="var(--accent2)"
               delay="2"
             />
@@ -122,7 +78,7 @@ export default function AdminDashboard() {
             <div className={styles.infoCard}>
               <div className={styles.infoCardTitle}>COURSES WITH FEEDBACK</div>
               <div className={styles.infoList}>
-                {dashboard.courses?.map((course, i) => (
+                {courses.map((course, i) => (
                   <div key={i} className={styles.infoItem}>
                     <span className={styles.infoKey}>{course.courseName}</span>
                     <span className={styles.infoVal}>

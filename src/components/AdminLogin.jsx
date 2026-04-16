@@ -1,33 +1,31 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useMutation } from "@tanstack/react-query";
 import styles from "./AdminLogin.module.css";
-import { login } from "../api/api";
+import { adminAPI } from "../api/api";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await login(email, password);
+  const loginMutation = useMutation({
+    mutationFn: ({ email, password }) => adminAPI.login(email, password),
+    onSuccess: (response, variables) => {
       const token = response.data.token || response.data.data?.token;
       localStorage.setItem("token", token);
-      localStorage.setItem("adminEmail", email);
+      localStorage.setItem("adminEmail", variables.email);
       navigate("/admin/dashboard");
-    } catch (err) {
-      setError(err.response?.data?.error || "Authentication failed");
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    loginMutation.mutate({ email, password });
   };
+
+  const errorMessage =
+    loginMutation.error?.response?.data?.error || "Authentication failed";
 
   return (
     <div className={styles.page}>
@@ -67,14 +65,20 @@ export default function AdminLogin() {
               required
             />
           </div>
-          {error && (
+
+          {loginMutation.isError && (
             <div className={styles.error}>
               <span className={styles.errorIcon}>!</span>
-              {error}
+              {errorMessage}
             </div>
           )}
-          <button type="submit" className={styles.btn} disabled={loading}>
-            {loading ? (
+
+          <button
+            type="submit"
+            className={styles.btn}
+            disabled={loginMutation.isPending}
+          >
+            {loginMutation.isPending ? (
               <span className={styles.loadingText}>
                 AUTHENTICATING<span className={styles.dots}>...</span>
               </span>
