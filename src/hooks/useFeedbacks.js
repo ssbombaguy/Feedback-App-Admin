@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { adminAPI } from '../api/api';
 
 export const useFeedbacks = () => {
@@ -14,7 +14,6 @@ export const useAdminCourses = () => {
 
   const coursesMap = {};
   feedbacks?.forEach((fb) => {
-
     const name = fb.course_name; 
     if (!coursesMap[name]) {
       coursesMap[name] = 0;
@@ -23,7 +22,6 @@ export const useAdminCourses = () => {
   });
 
   const courses = Object.keys(coursesMap).map((name) => ({
-
     courseName: name,
     totalFeedbacks: coursesMap[name],
   }));
@@ -34,4 +32,10 @@ export const useAdminCourses = () => {
     isError, 
     error 
   };
+};
+
+export const useSendNotification = () => {
+  return useMutation({
+    mutationFn: (data) => adminAPI.sendNotification(data),
+  });
 };

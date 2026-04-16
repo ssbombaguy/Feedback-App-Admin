@@ -1,0 +1,71 @@
+.container {
+    max-width: 600px;
+    margin-top: 2rem;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .fieldGroup {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 1rem;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: white;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  
+  .textarea {
+    min-height: 150px;
+    resize: vertical;
+  }
+  
+  .submitBtn {
+    padding: 1rem;
+    background: var(--accent);
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: opacity 0.2s;
+  }
+  
+  .submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .successMsg {
+    color: var(--green);
+    font-size: 0.9rem;
+  }
+  
+  .errorMsg {
+    color: #ff4444;
+    font-size: 0.9rem;
+  }

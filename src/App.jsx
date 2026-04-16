@@ -3,6 +3,7 @@ import AdminLogin from './components/AdminLogin'
 import AdminDashboard from './components/AdminDashboard'
 import CoursesList from './components/CoursesList'
 import CourseFeedbacks from './components/CourseFeedbacks'
+import Notifications from './components/Notifications' // 1. ADD THIS IMPORT
 import Layout from './components/Layout'
 
 function ProtectedRoute({ children }) {
@@ -16,6 +17,11 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/admin/login" element={<AdminLogin />} />
+        
+        <Route path="/admin/notifications" element={
+          <ProtectedRoute><Layout><Notifications /></Layout></ProtectedRoute>
+        } />
+
         <Route path="/admin/dashboard" element={
           <ProtectedRoute><Layout><AdminDashboard /></Layout></ProtectedRoute>
         } />
