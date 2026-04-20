@@ -64,23 +64,23 @@ export default function StudentsList() {
                     {String(i + 1).padStart(2, "0")}
                   </td>
                   <td className={styles.td}>
-                    {student.firstName || "Anonymous Student"}
+                    {student.firstName || "Not Found"}
                   </td>
                   <td className={styles.td}>
-                    {student.lastName || "Anonymous Student"}
+                    {student.lastName || "Not Found"}
                   </td>
                   <td className={styles.td}>{student.email || "Not Found"}</td>
                   <td className={styles.td}>
-                    {student.phoneNumber || "Anonymous Student"}
+                    {student.phoneNumber || "Not Found"}
                   </td>
                   <td className={styles.td}>
-                    {student.grade || "Anonymous Student"}
+                    {student.grade || "Not Found"}
                   </td>
                   <td className={styles.td}>
-                    {student.city || "Anonymous Student"}
+                    {student.city || "Not Found"}
                   </td>
                   <td className={styles.td}>
-                    {student.school || "Anonymous Student"}
+                    {student.school || "Not Found"}
                   </td>
                   <td className={styles.td}>
                     {student.createdAt
