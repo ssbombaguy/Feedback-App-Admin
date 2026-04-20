@@ -37,7 +37,12 @@ export default function StudentsList() {
             <tr>
               <th className={styles.th}>#</th>
               <th className={styles.th}>STUDENT NAME</th>
-              <th className={styles.th}>ACADEMIC YEAR</th>
+              <th className={styles.th}>LAST NAME</th>
+              <th className={styles.th}>EMAIL</th>
+              <th className={styles.th}>PHONE</th>
+              <th className={styles.th}>GRADE</th>
+              <th className={styles.th}>CITY</th>
+              <th className={styles.th}>SCHOOL</th>
               <th className={styles.th}>REGISTRATION DATE</th>
             </tr>
           </thead>
@@ -59,10 +64,23 @@ export default function StudentsList() {
                     {String(i + 1).padStart(2, "0")}
                   </td>
                   <td className={styles.td}>
-                    {student.pupil_name || "Anonymous Student"}
+                    {student.firstName || "Anonymous Student"}
                   </td>
                   <td className={styles.td}>
-                    {student.academic_year || "N/A"}
+                    {student.lastName || "Anonymous Student"}
+                  </td>
+                  <td className={styles.td}>{student.email || "Not Found"}</td>
+                  <td className={styles.td}>
+                    {student.phoneNumber || "Anonymous Student"}
+                  </td>
+                  <td className={styles.td}>
+                    {student.grade || "Anonymous Student"}
+                  </td>
+                  <td className={styles.td}>
+                    {student.city || "Anonymous Student"}
+                  </td>
+                  <td className={styles.td}>
+                    {student.school || "Anonymous Student"}
                   </td>
                   <td className={styles.td}>
                     {student.createdAt
