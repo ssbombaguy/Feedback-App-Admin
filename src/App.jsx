@@ -3,8 +3,9 @@ import AdminLogin from './components/AdminLogin'
 import AdminDashboard from './components/AdminDashboard'
 import CoursesList from './components/CoursesList'
 import CourseFeedbacks from './components/CourseFeedbacks'
-import Notifications from './components/Notifications' // 1. ADD THIS IMPORT
+import Notifications from './components/Notifications' 
 import Layout from './components/Layout'
+import StudentsList from "./components/StudentsList";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem('token')
@@ -17,23 +18,61 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/admin/login" element={<AdminLogin />} />
-        
-        <Route path="/admin/notifications" element={
-          <ProtectedRoute><Layout><Notifications /></Layout></ProtectedRoute>
-        } />
 
-        <Route path="/admin/dashboard" element={
-          <ProtectedRoute><Layout><AdminDashboard /></Layout></ProtectedRoute>
-        } />
-        <Route path="/admin/courses" element={
-          <ProtectedRoute><Layout><CoursesList /></Layout></ProtectedRoute>
-        } />
-        <Route path="/admin/courses/:courseName/feedbacks" element={
-          <ProtectedRoute><Layout><CourseFeedbacks /></Layout></ProtectedRoute>
-        } />
+        <Route
+          path="/admin/notifications"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Notifications />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AdminDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/courses"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CoursesList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/students"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <StudentsList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/courses/:courseName/feedbacks"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CourseFeedbacks />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
         <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Routes>
     </Router>
-  )
+  );
 }
