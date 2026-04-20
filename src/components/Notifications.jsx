@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { adminAPI } from "../api/api";
-import dashboardStyles from "./AdminDashboard.module.css"; 
+import dashboardStyles from "./AdminDashboard.module.css";
 import styles from "./Notifications.module.css";
 
 export default function Notifications() {
@@ -15,20 +15,28 @@ export default function Notifications() {
       setSuccess(true);
       setTitle("");
       setBody("");
-      setTimeout(() => setSuccess(false), 3000); 
+      setTimeout(() => setSuccess(false), 3000);
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutation.mutate({ title, body });
+    mutation.mutate({
+      title,
+      body,
+      data: {
+        additionalProp1: {},
+      },
+    });
   };
 
   return (
     <div className="fade-up">
       <div className={dashboardStyles.pageHeader}>
         <h1 className={dashboardStyles.pageTitle}>PUSH NOTIFICATIONS</h1>
-        <p className={dashboardStyles.subtitle}>Send a global alert to all students</p>
+        <p className={dashboardStyles.subtitle}>
+          Send a global alert to all students
+        </p>
       </div>
 
       <div className={styles.container}>
@@ -69,7 +77,7 @@ export default function Notifications() {
               ✓ Notification sent successfully!
             </div>
           )}
-          
+
           {mutation.isError && (
             <div className={styles.errorMsg}>
               ! Failed to send: {mutation.error.message}
