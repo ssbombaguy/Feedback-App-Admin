@@ -24,4 +24,6 @@ export const adminAPI = {
   getUser: () => api.get("/user").then(res => res.data),
 
   sendNotification: (notificationData) => api.post('/notifications/send', notificationData),
+
+  getPupils: () => api.get('/pupils/logged-in').then(res => res.data),
 };
