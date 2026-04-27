@@ -26,4 +26,8 @@ export const adminAPI = {
   sendNotification: (notificationData) => api.post('/notifications/send', notificationData),
 
   getPupils: () => api.get('/pupils/logged-in').then(res => res.data),
+
+  getCities: () => api.get('/cities').then(res => res.data),
+
+  getSchools: () => api.get('/schools').then(res => res.data),
 };
