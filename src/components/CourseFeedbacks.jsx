@@ -2,16 +2,45 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./CourseFeedbacks.module.css";
 import { useFeedbacks } from "../hooks/useFeedbacks";
+import { adminAPI } from "../api/api";
+import { useQueryClient } from "@tanstack/react-query";
+
+function DeleteConfirmModal({ isOpen, onConfirm, onCancel }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className={styles.overlay} onClick={onCancel}>
+      <div className={styles.deleteModal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalTitle}>DELETE FEEDBACK?</div>
+
+        <p className={styles.deleteWarning}>
+          This action cannot be undone. This feedback will be permanently
+          removed from the database.
+        </p>
+
+        <div className={styles.deleteActions}>
+          <button className={styles.cancelBtn} onClick={onCancel}>
+            CANCEL
+          </button>
+
+          <button className={styles.confirmDeleteBtn} onClick={onConfirm}>
+            DELETE PERMANENTLY
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function FeedbackModal({ feedback, onClose }) {
   if (!feedback) return null;
- const fields = [
-   { key: "course_evaluation_form", label: "COURSE EVALUATION" },
-   { key: "teacher_evaluation_form", label: "TEACHER EVALUATION" },
-   { key: "career_impact", label: "PRACTICAL USE" },
-   { key: "subject_wishes", label: "STUDENT REQUESTS" },
-   { key: "ideal_learning_environment", label: "IDEAL SCHOOL" },
- ];
+  const fields = [
+    { key: "course_evaluation_form", label: "COURSE EVALUATION" },
+    { key: "teacher_evaluation_form", label: "TEACHER EVALUATION" },
+    { key: "career_impact", label: "PRACTICAL USE" },
+    { key: "subject_wishes", label: "STUDENT REQUESTS" },
+    { key: "ideal_learning_environment", label: "IDEAL SCHOOL" },
+  ];
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -31,7 +60,6 @@ function FeedbackModal({ feedback, onClose }) {
             ×
           </button>
         </div>
-
         <div className={styles.modalBody}>
           <div className={styles.returnBadge}>
             <span
@@ -44,7 +72,6 @@ function FeedbackModal({ feedback, onClose }) {
                 : "✗ Would not return as teacher"}
             </span>
           </div>
-
           {fields.map(({ key, label }) =>
             feedback[key] ? (
               <div key={key} className={styles.fieldBlock}>
@@ -53,7 +80,6 @@ function FeedbackModal({ feedback, onClose }) {
               </div>
             ) : null
           )}
-
           <div className={styles.submittedAt}>
             SUBMITTED · {new Date(feedback.createdAt).toLocaleString()}
           </div>
@@ -67,27 +93,39 @@ export default function CourseFeedbacks() {
   const { courseName } = useParams();
   const navigate = useNavigate();
   const [selected, setSelected] = useState(null);
+  const [deleteId, setDeleteId] = useState(null); 
   const decoded = decodeURIComponent(courseName);
+  const [toast, setToast] = useState(null);
 
   const { data: allFeedbacks, isLoading, isError } = useFeedbacks();
 
   const feedbacks =
     allFeedbacks?.filter((fb) => fb.course_name === decoded) || [];
 
-const stats = {
-  totalFeedbacks: feedbacks.length,
-  returnAsTeacherCount: feedbacks.filter((f) => f.wants_to_return_as_teacher)
-    .length,
-  anonymousCount: feedbacks.filter((f) => f.is_anonymous).length,
-  returnAsTeacherPercentage: feedbacks.length
-    ? Math.round(
-        (feedbacks.filter((f) => f.wants_to_return_as_teacher).length /
-          feedbacks.length) *
-          100
-      )
-    : 0,
+const handleDelete = async () => {
+  try {
+    await adminAPI.deleteFeedback(deleteId);
+    queryClient.invalidateQueries({ queryKey: ["feedbacks"] }); 
+    setDeleteId(null);
+  } catch (err) {
+    console.error("Failed to delete feedback", err);
+    alert("Error deleting feedback");
+  }
 };
-  // ---------------------
+
+  const stats = {
+    totalFeedbacks: feedbacks.length,
+    returnAsTeacherCount: feedbacks.filter((f) => f.wants_to_return_as_teacher)
+      .length,
+    anonymousCount: feedbacks.filter((f) => f.is_anonymous).length,
+    returnAsTeacherPercentage: feedbacks.length
+      ? Math.round(
+          (feedbacks.filter((f) => f.wants_to_return_as_teacher).length /
+            feedbacks.length) *
+            100
+        )
+      : 0,
+  };
 
   return (
     <div>
@@ -100,8 +138,7 @@ const stats = {
             >
               ← COURSES
             </button>
-            <span className={styles.sep}>/</span>
-            FEEDBACKS
+            <span className={styles.sep}>/</span> FEEDBACKS
           </div>
           <h1 className={styles.pageTitle}>{decoded}</h1>
         </div>
@@ -116,20 +153,9 @@ const stats = {
           <div className={styles.statBox}>
             <div className={styles.statLabel}>WOULD RETURN AS TEACHER</div>
             <div className={styles.statNum} style={{ color: "var(--green)" }}>
-              {stats.returnAsTeacherCount}
+              {stats.returnAsTeacherCount}{" "}
               <span className={styles.statPct}>
-                {" "}
                 ({stats.returnAsTeacherPercentage}%)
-              </span>
-            </div>
-          </div>
-          <div className={styles.statBox}>
-            <div className={styles.statLabel}>ANONYMOUS SUBMISSIONS</div>
-            <div className={styles.statNum}>
-              {stats.anonymousCount}
-              <span className={styles.statPct}>
-                {" "}
-                ({stats.anonymousPercentage}%)
               </span>
             </div>
           </div>
@@ -155,12 +181,6 @@ const stats = {
         </div>
       )}
 
-      {isError && (
-        <div className={styles.errorState}>
-          <span>!</span> Failed to load feedbacks
-        </div>
-      )}
-
       {!isLoading && !isError && (
         <div className={`${styles.tableWrap} fade-up fade-up-delay-2`}>
           <table className={styles.table}>
@@ -176,26 +196,23 @@ const stats = {
                   <span className={styles.thLabel}>EVALUATION PREVIEW</span>
                 </th>
                 <th className={styles.th}>
-                  <span className={styles.thLabel}>RETURN AS TEACHER</span>
+                  <span className={styles.thLabel}>RETURN</span>
                 </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>ANONYMOUS</span>
-                </th>
-                <th className={styles.th}>
-                  <span className={styles.thLabel}>ACTION</span>
+                <th className={styles.th} style={{ textAlign: "right" }}>
+                  <span className={styles.thLabel}>ACTIONS</span>
                 </th>
               </tr>
             </thead>
             <tbody>
               {feedbacks.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className={styles.emptyRow}>
+                  <td colSpan="5" className={styles.emptyRow}>
                     NO FEEDBACKS FOUND
                   </td>
                 </tr>
               ) : (
                 feedbacks.map((fb, i) => (
-                  <tr key={fb._id} className={styles.tr}>
+                  <tr key={fb.id} className={styles.tr}>
                     <td className={styles.td}>
                       <span className={styles.rowNum}>
                         {String(i + 1).padStart(2, "0")}
@@ -208,35 +225,49 @@ const stats = {
                     </td>
                     <td className={styles.td}>
                       <span className={styles.preview}>
-                        {fb.course_evaluation_form?.substring(0, 40)}
-                        {fb.course_evaluation_form?.length > 40 ? "..." : ""}
+                        {fb.course_evaluation_form?.substring(0, 30)}...
                       </span>
                     </td>
                     <td className={styles.td}>
                       <span
                         className={
-                          fb.wants_to_return_as_teacher ? styles.yesTag : styles.noTag
+                          fb.wants_to_return_as_teacher
+                            ? styles.yesTag
+                            : styles.noTag
                         }
                       >
                         {fb.wants_to_return_as_teacher ? "✓ YES" : "✗ NO"}
                       </span>
                     </td>
-                    <td className={styles.td}>
-                      <span
-                        className={
-                          fb.is_anonymous ? styles.yesTag : styles.noTag
-                        }
-                      >
-                        {fb.is_anonymous ? "✓ YES" : "✗ NO"}
-                      </span>
-                    </td>
-                    <td className={styles.td}>
-                      <button
-                        className={styles.actionBtn}
-                        onClick={() => setSelected(fb)}
-                      >
-                        DETAILS →
-                      </button>
+                    <td className={styles.td} style={{ textAlign: "right" }}>
+                      <div className={styles.actionGroup}>
+                        <button
+                          className={styles.actionBtn}
+                          onClick={() => setSelected(fb)}
+                        >
+                          DETAILS →
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.deleteBtn}
+                          onClick={() => {
+                            setDeleteId(fb.id);
+                          }}
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" />
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -245,8 +276,21 @@ const stats = {
           </table>
         </div>
       )}
-
+      {toast && (
+        <div
+          className={
+            toast === "success" ? styles.toastSuccess : styles.toastError
+          }
+        >
+          {toast === "success" ? "✓ FEEDBACK DELETED" : "✗ FAILED TO DELETE"}
+        </div>
+      )}
       <FeedbackModal feedback={selected} onClose={() => setSelected(null)} />
+      <DeleteConfirmModal
+        isOpen={!!deleteId}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

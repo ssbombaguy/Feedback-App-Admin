@@ -232,7 +232,7 @@
   letter-spacing: 0.1em;
 }
 
-/* Modal */
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -240,7 +240,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   animation: fadeUp 0.2s ease forwards;
   backdrop-filter: blur(4px);
 }
@@ -357,4 +357,98 @@
   letter-spacing: 0.08em;
   color: var(--text-dimmer);
   padding-top: 4px;
+}
+
+.actionGroup {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.deleteBtn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--red);
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.deleteBtn:hover {
+  background: rgba(255, 69, 69, 0.1);
+  border-color: var(--red);
+}
+
+
+.deleteModal {
+  background: var(--surface);
+  border: 1px solid var(--red);
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+  animation: fadeUp 0.2s ease forwards;
+}
+
+.deleteWarning {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 16px 0 24px 0;
+}
+
+.deleteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancelBtn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 8px 16px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.confirmDeleteBtn {
+  background: var(--red);
+  border: 1px solid var(--red);
+  color: white;
+  padding: 8px 16px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmDeleteBtn:hover {
+  opacity: 0.9;
+}
+
+.toastSuccess, .toastError {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border-radius: 4px;
+  z-index: 9999;
+}
+
+.toastSuccess {
+  background: var(--green);
+  color: #000;
+}
+
+.toastError {
+  background:var(--red);
+  color: #fff;
 }

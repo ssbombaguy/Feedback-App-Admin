@@ -37,21 +37,29 @@ export default function CoursesList() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>#</th>
-              <th>COURSE NAME</th>
-              <th>TOTAL FEEDBACKS</th>
-              <th>ACTION</th>
+              <th className={styles.th}>#</th>
+              <th className={styles.th}>COURSE NAME</th>
+              <th className={styles.th}>TOTAL FEEDBACKS</th>
+              <th className={styles.th} style={{ textAlign: "right" }}>
+                ACTION
+              </th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((course, i) => (
               <tr key={i} className={styles.tr}>
-                <td>{String(i + 1).padStart(2, "0")}</td>
-                <td>{course.courseName}</td>
-                <td>
+                <td className={styles.td}>
+                  <span className={styles.rowNum}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </td>
+                <td className={styles.td}>
+                  <span className={styles.courseName}>{course.courseName}</span>
+                </td>
+                <td className={styles.td}>
                   <span className={styles.pill}>{course.totalFeedbacks}</span>
                 </td>
-                <td>
+                <td className={styles.td} style={{ textAlign: "right" }}>
                   <button
                     className={styles.actionBtn}
                     onClick={() =>
