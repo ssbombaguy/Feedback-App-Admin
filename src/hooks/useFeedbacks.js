@@ -1,11 +1,11 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { adminAPI } from '../api/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { adminAPI } from "../api/api";
 
 export const useFeedbacks = () => {
   return useQuery({
-    queryKey: ['feedbacks'],
+    queryKey: ["feedbacks"],
     queryFn: adminAPI.getFeedbacks,
-    staleTime: 5 * 60 * 1000, 
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -14,7 +14,7 @@ export const useAdminCourses = () => {
 
   const coursesMap = {};
   feedbacks?.forEach((fb) => {
-    const name = fb.course_name; 
+    const name = fb.course_name;
     if (!coursesMap[name]) {
       coursesMap[name] = 0;
     }
@@ -26,16 +26,31 @@ export const useAdminCourses = () => {
     totalFeedbacks: coursesMap[name],
   }));
 
-  return { 
-    courses, 
-    isLoading, 
-    isError, 
-    error 
+  return {
+    courses,
+    isLoading,
+    isError,
+    error,
   };
 };
 
 export const useSendNotification = () => {
   return useMutation({
     mutationFn: (data) => adminAPI.sendNotification(data),
+  });
+};
+
+
+export const useDeleteFeedback = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id) => adminAPI.deleteFeedback(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feedbacks'] });
+    },
+    onError: (err) => {
+      console.error('Failed to delete feedback', err);
+    }
   });
 };

@@ -43,6 +43,7 @@
   color: var(--text);
 }
 
+
 .statsRow {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -91,6 +92,7 @@
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+
 .loadingState {
   display: flex;
   flex-direction: column;
@@ -110,7 +112,7 @@
 }
 
 .loadingBar::after {
-  content: '';
+  content: "";
   position: absolute;
   left: -50%;
   width: 50%;
@@ -120,9 +122,14 @@
 }
 
 @keyframes loading {
-  from { left: -50%; }
-  to { left: 100%; }
+  from {
+    left: -50%;
+  }
+  to {
+    left: 100%;
+  }
 }
+
 
 .errorState {
   background: rgba(255, 69, 69, 0.08);
@@ -131,6 +138,7 @@
   padding: 14px 18px;
   font-size: 12px;
 }
+
 
 .tableWrap {
   border: 1px solid var(--border);
@@ -179,11 +187,6 @@
   font-size: 11px;
 }
 
-.studentName {
-  color: var(--text);
-  font-weight: 500;
-}
-
 .email {
   color: var(--text-dim);
   font-size: 11px;
@@ -209,6 +212,13 @@
   font-weight: 500;
 }
 
+.actionGroup {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .actionBtn {
   background: none;
   border: 1px solid var(--border);
@@ -222,148 +232,6 @@
 .actionBtn:hover {
   border-color: var(--accent);
   color: var(--accent);
-}
-
-.emptyRow {
-  text-align: center;
-  padding: 48px;
-  color: var(--text-dimmer);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-}
-
-
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: fadeUp 0.2s ease forwards;
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: var(--surface);
-  border: 1px solid var(--border-bright);
-  width: 580px;
-  max-width: 90vw;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  animation: fadeUp 0.25s ease forwards;
-}
-
-.modalHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.modalTitle {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  margin-bottom: 4px;
-}
-
-.modalSub {
-  font-size: 12px;
-  color: var(--text-dim);
-}
-
-.modalEmail {
-  color: var(--text-dimmer);
-}
-
-.closeBtn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  line-height: 1;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-
-.closeBtn:hover {
-  border-color: var(--red);
-  color: var(--red);
-}
-
-.modalBody {
-  padding: 20px 24px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.returnBadge {
-  padding: 10px 14px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-}
-
-.yes {
-  color: var(--green);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-
-.no {
-  color: var(--red);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-
-.fieldBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.fieldBlock:last-of-type {
-  border-bottom: none;
-}
-
-.fieldLabel {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
-}
-
-.fieldValue {
-  font-size: 12px;
-  color: var(--text);
-  line-height: 1.6;
-}
-
-.submittedAt {
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: var(--text-dimmer);
-  padding-top: 4px;
-}
-
-.actionGroup {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
 }
 
 .deleteBtn {
@@ -383,72 +251,10 @@
   border-color: var(--red);
 }
 
-
-.deleteModal {
-  background: var(--surface);
-  border: 1px solid var(--red);
-  padding: 24px;
-  width: 400px;
-  max-width: 90vw;
-  animation: fadeUp 0.2s ease forwards;
-}
-
-.deleteWarning {
-  font-size: 13px;
-  color: var(--text-dim);
-  line-height: 1.5;
-  margin: 16px 0 24px 0;
-}
-
-.deleteActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.cancelBtn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 8px 16px;
-  font-size: 10px;
+.emptyRow {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-dimmer);
+  font-size: 11px;
   letter-spacing: 0.1em;
-  cursor: pointer;
-}
-
-.confirmDeleteBtn {
-  background: var(--red);
-  border: 1px solid var(--red);
-  color: white;
-  padding: 8px 16px;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.confirmDeleteBtn:hover {
-  opacity: 0.9;
-}
-
-.toastSuccess, .toastError {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  border-radius: 4px;
-  z-index: 9999;
-}
-
-.toastSuccess {
-  background: var(--green);
-  color: #000;
-}
-
-.toastError {
-  background:var(--red);
-  color: #fff;
 }
